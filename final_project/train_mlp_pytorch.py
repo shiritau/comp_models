@@ -14,21 +14,10 @@ import matplotlib.pyplot as plt
 
 def get_efficientnet_model():
     efficientnet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub',
-                                  'nvidia_efficientnet_b0')  # create new classifier with sigmoid activation function
+                                  'nvidia_efficientnet_b0')
     model = nn.Sequential(
         efficientnet,
         nn.Linear(in_features=1000, out_features=1),
-        nn.Sigmoid()
-    )
-    return model
-
-
-def get_vgg_model():
-    vgg = torch.hub.load('pytorch/vision:v0.10.0', 'vgg16', weights='DEFAULT').eval()
-    vgg.classifier[-1] = torch.nn.Linear(in_features=4096, out_features=1)
-    # create new classifier with sigmoid activation function
-    model = nn.Sequential(
-        vgg,
         nn.Sigmoid()
     )
     return model
@@ -60,8 +49,8 @@ def calc_sens_spec(output, label, accuracy_threshold):
     tn = ((output < accuracy_threshold) & (label == 0)).sum().item()
     fp = ((output > accuracy_threshold) & (label == 0)).sum().item()
     fn = ((output < accuracy_threshold) & (label == 1)).sum().item()
-    sensitivity = tp / (tp + fn+eps)
-    specificity = tn / (tn + fp+eps)
+    sensitivity = tp / (tp + fn + eps)
+    specificity = tn / (tn + fp + eps)
     return sensitivity, specificity
 
 
@@ -71,7 +60,7 @@ def train(df_path, model, num_epochs, weights_dir, exp_name, accuracy_threshold=
     val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=False)
     writer = SummaryWriter(log_dir=weights_dir, comment=exp_name)
 
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 50, 70], gamma=0.1)
     criterion = nn.BCELoss()
 
@@ -84,7 +73,7 @@ def train(df_path, model, num_epochs, weights_dir, exp_name, accuracy_threshold=
         for batch_idx, data in enumerate(train_dataloader):
             if batch_idx >= 50:
                 break
-            # data = data.view(-1, 28 * 28)
+
             scan = data['scan'].to(torch.float32)
             scan = scan.view(-1, 240 * 240)
             label = data['label'].unsqueeze(1).to(torch.float32)
@@ -172,7 +161,7 @@ if __name__ == '__main__':
     ACCURACY_THRESHOLD = 0.5
 
     model = MLP(240 * 240, 50, 1)
-    #model = get_efficientnet_model()
+    # model = get_efficientnet_model()
     current_time = datetime.now().strftime("%d_%m_%Y-%H_%M_%S")
     task = Task.init(project_name="tumour_detection", task_name=f"lr_0.01_{current_time}")
 
