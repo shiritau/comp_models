@@ -27,12 +27,12 @@ def show_segmentation(data_dir: str):
 
 def prepare_data(data_dir: str, npy_dir: str, add_zoom: bool = False):
     df = pd.DataFrame(columns=['path', 'label', 'shape'])
-    t1_paths = glob(os.path.join(data_dir, '*/*flair.nii.gz'))
+    t1_paths = glob(os.path.join(data_dir, '*/*t1.nii.gz'))
 
     for scan_path in tqdm(t1_paths[:100]):  # only take first 100 scans
         name = scan_path.split('\\')[-2]
         scan_data = nib.load(scan_path).get_fdata()
-        seg_path = scan_path.replace('flair', 'seg')
+        seg_path = scan_path.replace('t1', 'seg')
         seg_data = nib.load(seg_path).get_fdata()
         for slice_num in range(scan_data.shape[2]):
             slice_scan = scan_data[:, :, slice_num]
@@ -62,7 +62,7 @@ def split_train_val(df):
 if __name__ == '__main__':
     ROOT_DIR = r'C:\Users\shiri\Documents\School\Master\Courses\Comp_models_of_learning\final_project\brats'
     DATA_DIR = f'{ROOT_DIR}/training'
-    NPY_DIR = f'{ROOT_DIR}/npys_zoom_flair'
+    NPY_DIR = f'{ROOT_DIR}/npys'
     data_df = prepare_data(DATA_DIR, NPY_DIR, add_zoom=True)
     data_df = split_train_val(data_df)
     data_df.to_csv(f'{ROOT_DIR}/paths.csv', index=False)
