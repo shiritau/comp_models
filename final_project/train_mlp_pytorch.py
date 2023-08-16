@@ -155,8 +155,8 @@ def test_roc(model, test_dataset):
 
 if __name__ == '__main__':
     ROOT_DIR = r"C:\Users\shiri\Documents\School\Master\Courses\Comp_models_of_learning\final_project\brats"
-    WEIGHTS_DIR = r"C:\Users\shiri\Documents\School\Master\Courses\Comp_models_of_learning\final_project\brats\exps"
-    DF_PATH = r"C:\Users\shiri\Documents\School\Master\Courses\Comp_models_of_learning\final_project\brats\paths.csv"
+    WEIGHTS_DIR = f'{ROOT_DIR}/exps'
+    DF_PATH = f'{ROOT_DIR}/paths.csv'
     NUM_EPOCHS = 30
     ACCURACY_THRESHOLD = 0.5
 
